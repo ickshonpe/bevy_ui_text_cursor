@@ -1,4 +1,3 @@
-use bevy::input::keyboard::KeyboardInput;
 use bevy_ui_text_cursor::*;
 use bevy::prelude::*;
 
