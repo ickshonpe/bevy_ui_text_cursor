@@ -1,0 +1,9 @@
+[package]
+name = "bevy_ui_text_cursor"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ickshonpe/bevy_ui_text_cursor"
+
+[dependencies]
+bevy = "0.7"
