@@ -49,6 +49,8 @@ There is also a ```UiTextCursorBlink``` component you can add to get a blinking 
 cargo run --example hello_world
 ```
 
+which displays the message "Hello, World" and a cursor you can move left and right with the left and right arrow keys.
+
 ## Notes
 
 Very rough work in progress. Not tested. Not spent even in an hour working on this crate. Many problems:
