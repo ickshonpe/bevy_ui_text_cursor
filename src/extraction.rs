@@ -1,3 +1,4 @@
+use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::render::*;
 use bevy::render::texture::DEFAULT_IMAGE_HANDLE;
@@ -38,7 +39,7 @@ pub fn extract_ui_text_cursor(
         text, 
         visibility,
         &UiTextCursor(cursor_index),
-        &UiTextCursorStyle { cursor_color, cursor_min, cursor_max },
+        style,
         blink,
         clip
     ) in uinode_query.iter() {
@@ -62,10 +63,21 @@ pub fn extract_ui_text_cursor(
             for (glyph_index, text_glyph) in text_glyphs.iter().enumerate() {
                 // let color = text.sections[text_glyph.section_index].style.color;
                 if glyph_index == cursor_index {
+                    let auto_height =
+                        text_glyphs.iter().max_by(|g, h|
+                            g.size.y.partial_cmp(&h.size.y).unwrap_or(std::cmp::Ordering::Equal)
+                        )
+                        .map(|g| g.size.y)
+                        .unwrap_or(0.0);
+                    let auto_width =
+                        text_glyphs.iter().max_by(|g, h|
+                            g.size.x.partial_cmp(&h.size.x).unwrap_or(std::cmp::Ordering::Equal)
+                        )
+                        .map(|g| g.size.x)
+                        .unwrap_or(0.0);
                     let atlas = texture_atlases
                         .get(text_glyph.atlas_info.texture_atlas.clone_weak())
                         .unwrap();
-                    // let texture = atlas.texture.clone_weak();
                     let index = text_glyph.atlas_info.glyph_index as usize;
                     
                     let transform =
@@ -75,11 +87,28 @@ pub fn extract_ui_text_cursor(
                                 alignment_offset * 
                                 scale_factor + text_glyph.position.extend(0.),
                             );
+                    
+                        
+                    let cursor_height = match style.cursor_height {
+                        Val::Undefined => 0.0,
+                        Val::Auto => auto_height * 1.2,
+                        Val::Px(height) => height,
+                        Val::Percent(p) => 100_f32.recip() * p * auto_height,
+                    };
 
-                    let rect = bevy::sprite::Rect { min: cursor_min, max: cursor_max };
+                    let cursor_width = match style.cursor_width {
+                        Val::Undefined => 0.0,
+                        Val::Auto => auto_width,
+                        Val::Px(width) => width,
+                        Val::Percent(p) => 100_f32.recip() * p * text_glyph.size.x
+                    };
+
+                    let cursor_size = vec2(cursor_width, cursor_height);
+
+                    let rect = bevy::sprite::Rect { min: Vec2::ZERO, max: cursor_size };
                     extracted_uinodes.uinodes.push(ExtractedUiNode {
                         transform,
-                        color: cursor_color,
+                        color: style.cursor_color,
                         rect,
                         image: DEFAULT_IMAGE_HANDLE.typed(),
                         atlas_size: None,

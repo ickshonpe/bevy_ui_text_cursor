@@ -22,21 +22,21 @@ fn setup(
                 text: Text {
                     sections: vec![
                         TextSection {
-                            value: "Hello, ".to_string(),
+                            value: "Row 1: 0123456789\nRow 2: 0123456789".to_string(),
                             style: TextStyle {
                                 font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 32.0,
+                                font_size: 100.0,
                                 color: Color::WHITE,
                             },
                         },
-                        TextSection {
-                            value: "World".to_string(), 
-                            style: TextStyle {
-                                font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 32.0,
-                                color: Color::WHITE,
-                            }
-                        },
+                        // TextSection {
+                        //     value: "World".to_string(), 
+                        //     style: TextStyle {
+                        //         font: asset_server.load("FiraMono-Medium.ttf"),
+                        //         font_size: 100.0,
+                        //         color: Color::WHITE,
+                        //     }
+                        // },
                     ],
                     alignment: TextAlignment { vertical: VerticalAlign::Center, horizontal:HorizontalAlign::Center },
                     ..Default::default()
@@ -65,11 +65,26 @@ fn move_cursor(
         });
 }
 
+fn report(
+    text_pipeline: Res<bevy::text::DefaultTextPipeline>,
+    query: Query<(Entity, &UiTextCursor), Changed<UiTextCursor>>,
+) {
+    query.for_each(|(id, cursor)| {
+        if let Some(glyphs) = text_pipeline.get_glyphs(&id) {
+            if let Some(glyph) = glyphs.glyphs.get(cursor.0) {
+                info!("cusor at {}", cursor.0);
+                info!("{:#?}", glyph);
+            }
+        }
+    });
+}
+
 fn main() {
     App::new()
     .add_plugins(DefaultPlugins)
     .add_plugin(BevyUiTextCursorPlugin)
     .add_startup_system(setup)
     .add_system(move_cursor)
+    .add_system(report)
     .run();
 }

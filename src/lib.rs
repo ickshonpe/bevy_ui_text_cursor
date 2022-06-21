@@ -3,6 +3,7 @@ mod extraction;
 use bevy::prelude::*;
 use bevy::render::RenderApp;
 use bevy::render::RenderStage;
+use bevy::text::DefaultTextPipeline;
 use bevy::ui::RenderUiSystem;
 use extraction::extract_ui_text_cursor;
 
@@ -31,20 +32,22 @@ impl Default for UiTextCursorBlink {
     }
 }
 
+
+
 #[derive(Clone, Debug)]
 #[derive(Component)]
 pub struct UiTextCursorStyle {
     pub cursor_color: Color,
-    pub cursor_min: Vec2,
-    pub cursor_max: Vec2,
+    pub cursor_height: Val,
+    pub cursor_width: Val,
 }
 
 impl Default for UiTextCursorStyle {
     fn default() -> Self {
         Self {
             cursor_color: Color::WHITE,
-            cursor_min: Vec2::ZERO,
-            cursor_max: 8.0 * (2. * Vec2::X + 3. * Vec2::Y),
+            cursor_height: Val::Auto,
+            cursor_width: Val::Auto
         }
     }
 }
@@ -67,6 +70,42 @@ fn update_cursor_blink(
     });
 }
 
+fn report_text_details(
+    mut flag: Local<bool>,
+    text_pipeline: Res<DefaultTextPipeline>,
+    uinode_query: Query<(
+        Entity,
+        &Text,
+        &Node,
+        &GlobalTransform,
+        &Visibility,
+        &UiTextCursor,
+        &UiTextCursorStyle,
+        Option<&UiTextCursorBlink>,
+        Option<&CalculatedClip>,
+    )>,
+) {
+    if !*flag {
+        uinode_query.for_each(|(entity, text, ..)| {
+            if let Some(text_layout) = text_pipeline.get_glyphs(&entity) {
+                let text_glyphs = &text_layout.glyphs;
+                println!("text details");
+                let sections = 
+                    text.sections.iter().map(|section|
+                        section.value.as_str()
+                    );
+                println!("\tsections: {:?}", sections);
+                println!("\tglyph count: {}", text_glyphs.len());
+                println!("\tfont? size: {:#.1?}", text_layout.size);
+                for (i, positioned_glyph) in text_glyphs.iter().enumerate() {
+                    println!("glyph: {i}, {:#?}", positioned_glyph);
+                }
+                *flag = true;
+            }
+        });
+    }
+}
+
 pub struct BevyUiTextCursorPlugin;
 
 impl Plugin for BevyUiTextCursorPlugin {
@@ -74,6 +113,9 @@ impl Plugin for BevyUiTextCursorPlugin {
         app
         .add_system_to_stage(
             CoreStage::PostUpdate, update_cursor_blink
+        )
+        .add_system(
+            report_text_details
         );
 
         let render_app = app.get_sub_app_mut(RenderApp).unwrap();
