@@ -44,7 +44,7 @@ impl Default for UiTextCursorStyle {
         Self {
             cursor_color: Color::WHITE,
             cursor_min: Vec2::ZERO,
-            cursor_max: Vec2::ONE,
+            cursor_max: 8.0 * (2. * Vec2::X + 3. * Vec2::Y),
         }
     }
 }

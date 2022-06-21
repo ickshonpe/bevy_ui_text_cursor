@@ -53,11 +53,4 @@ which displays the message "Hello, World" and a cursor you can move left and rig
 
 ## Notes
 
-Very rough work in progress. Not really tested. Not spent even in an hour working on this crate. Many problems:
-
-* The cursor doesn't stop at the last glyph
-* Control characters like ```\n``` etc will probably mess things up.
-* You have to handle inputs and moving the cursor yourself.
-* The cursor is the size of the glyph it's drawn over. It isn't display at all when over spaces.
-
-All are easily fixable though.
+Very rough work in progress. Many problems.

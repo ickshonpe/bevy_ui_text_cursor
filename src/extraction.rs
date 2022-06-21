@@ -67,22 +67,22 @@ pub fn extract_ui_text_cursor(
                         .unwrap();
                     // let texture = atlas.texture.clone_weak();
                     let index = text_glyph.atlas_info.glyph_index as usize;
-                    let rect = atlas.textures[index];
-                    let atlas_size = Some(atlas.size);
-
+                    
                     let transform =
                         Mat4::from_rotation_translation(transform.rotation, transform.translation)
                             * Mat4::from_scale(transform.scale / scale_factor)
                             * Mat4::from_translation(
-                                alignment_offset * scale_factor + text_glyph.position.extend(0.),
+                                alignment_offset * 
+                                scale_factor + text_glyph.position.extend(0.),
                             );
 
+                    let rect = bevy::sprite::Rect { min: cursor_min, max: cursor_max };
                     extracted_uinodes.uinodes.push(ExtractedUiNode {
                         transform,
                         color: cursor_color,
                         rect,
                         image: DEFAULT_IMAGE_HANDLE.typed(),
-                        atlas_size,
+                        atlas_size: None,
                         clip: clip.map(|clip| clip.clip),
                     });
                 }
